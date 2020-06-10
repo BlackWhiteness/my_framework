@@ -1,0 +1,13 @@
+{
+    "name": "admin/my-framework",
+    "description": "my first framework",
+    "authors": [
+        {
+            "name": "wangshuai",
+            "email": "wangshuai@gammainfo.com"
+        }
+    ],
+    "require": {
+        "symfony/http-foundation": "^4.4"
+    }
+}
