@@ -7,27 +7,32 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 
 
+function render_template(Request $request)
+{
+    extract($request->attributes->all(), EXTR_SKIP);
+    ob_start();
+    include sprintf(__DIR__ . '/../src/page/%s.php', $_route);
+    return (new Response())->setContent(ob_get_clean());
+}
 
 $request = Request::createFromGlobals();
 $response = new Response();
 
-$routes = include __DIR__.'/../src/routes/index.php';
+$routes = include __DIR__ . '/../src/routes/index.php';
 
 $context = new RequestContext();
 $context->fromRequest($request);
 $matcher = new UrlMatcher($routes, $context);
 $attributes = $matcher->match($request->getPathInfo());
-$generator = new \Symfony\Component\Routing\Generator\UrlGenerator($routes, $context);
 
 
 try {
-    extract($matcher->match($request->getPathInfo()), EXTR_SKIP);
-    ob_start();
-    include sprintf(__DIR__ . '/../src/page/%s.php', $_route);
-    $response->setContent(ob_get_clean());
-}catch (\Symfony\Component\Routing\Exception\ResourceNotFoundException $exception){
+    $request->attributes->add($matcher->match($request->getPathInfo()));
+
+    $response = call_user_func($request->attributes->get('_controller'), $request);
+} catch (\Symfony\Component\Routing\Exception\ResourceNotFoundException $exception) {
     $response = new Response('Not Found', 404);
-}catch (Exception $exception){
+} catch (Exception $exception) {
     $response = new Response('An error occurred', 500);
 }
 
