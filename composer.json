@@ -10,5 +10,10 @@
     "require": {
         "symfony/http-foundation": "^4.4",
         "symfony/routing": "^4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
     }
 }
